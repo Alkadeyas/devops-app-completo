@@ -1,0 +1,56 @@
+<!doctype html>
+<!-- Pubblicata dalla pipeline (job "pages"): i segnaposto __...__ li riempie sed. -->
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>devops-app · release</title>
+<style>
+  :root { --red: #EF4350; --bg: #0A0A0A; --card: #161616; --line: #2A2A2A; --txt: #FFFFFF; --muted: #999999; --ok: #3DDC84; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--txt); font: 17px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 48px 16px 64px; border-top: 4px solid var(--red); }
+  .brand { color: var(--red); font-weight: 700; letter-spacing: .12em; font-size: 13px; }
+  .brand span { color: var(--muted); }
+  h1 { font-size: clamp(40px, 8vw, 72px); line-height: 1; margin: 24px 0 8px; }
+  h1 em { color: var(--red); font-style: normal; }
+  .sub { color: var(--muted); margin: 0 0 32px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .card h2 { margin: 0 0 6px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .card p { margin: 0; overflow-wrap: anywhere; }
+  .ok { color: var(--ok); font-weight: 700; }
+  a { color: var(--red); }
+  pre { background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--red); border-radius: 6px; padding: 14px 16px; overflow-x: auto; font: 14px/1.6 Menlo, Consolas, monospace; }
+  h3 { margin: 36px 0 10px; font-size: 20px; }
+  .flow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; color: var(--muted); font-size: 14px; }
+  .flow b { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; color: var(--txt); font-weight: 500; }
+  footer { margin-top: 48px; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="brand">SOFTWARE INDUSTRIALE <span>· PILLOLE DEVOPS · SESSIONE 5</span></div>
+  <h1>devops-app<br><em>è in produzione</em></h1>
+  <p class="sub">Pagina generata e pubblicata dalla pipeline CI/CD.</p>
+
+  <div class="grid">
+    <div class="card"><h2>Commit</h2><p><code>__SHA__</code> di __ACTOR__</p></div>
+    <div class="card"><h2>Pubblicata il</h2><p>__DATE__</p></div>
+    <div class="card"><h2>Controlli superati</h2><p class="ok">✓ build · ✓ test · ✓ Docker Scout</p></div>
+    <div class="card"><h2>Pipeline</h2><p><a href="__RUN_URL__">apri il run della pipeline →</a></p></div>
+  </div>
+
+  <h3>Il percorso di questo commit</h3>
+  <div class="flow"><b>git push</b> → <b>build + test</b> → <b>docker build</b> → <b>Scout</b> → <b>Docker Hub</b> → <b>GitHub Pages</b></div>
+
+  <h3>Prova l'immagine sul tuo laptop</h3>
+<pre>docker pull __IMAGE__:main
+docker run --rm -p 8080:8080 __IMAGE__:main
+curl http://localhost:8080/info</pre>
+  <p class="sub">Con il database: nel <code>docker-compose.yml</code>, servizio <code>app</code>, sostituisci il blocco <code>build:</code> e la riga <code>image:</code> con <code>image: __IMAGE__:main</code>, poi <code>docker compose up -d</code> e apri <code>/health</code> e <code>/visits</code>.</p>
+
+  <footer>GitHub Pages ospita file statici. L'app Java gira nel container, e in Sessione 6 la portiamo su Kubernetes.</footer>
+</main>
+</body>
+</html>
