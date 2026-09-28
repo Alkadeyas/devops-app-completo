@@ -1,0 +1,82 @@
+# Pipeline CI/CD di devops-app (Sessione 5)
+#   PR verso develop/main -> build + test
+#   push su develop       -> build + test -> immagine: Scout + push su Docker Hub
+#   push su main          -> come develop + deploy della pagina su GitHub Pages
+name: CI/CD
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+  workflow_dispatch:
+
+env:
+  IMAGE: ${{ vars.DOCKERHUB_USERNAME }}/devops-app
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+      - name: Build e test
+        run: ./mvnw -B verify
+
+  docker:
+    needs: build-test
+    # gira solo fuori dalle PR e dopo aver configurato Docker Hub
+    if: github.event_name != 'pull_request' && vars.DOCKERHUB_USERNAME != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/login-action@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build immagine
+        run: |
+          BRANCH_TAG=$(echo "$GITHUB_REF_NAME" | tr '/' '-')   # feature/x -> feature-x, perché i tag Docker escludono "/"
+          docker build -f Dockerfile_v2 -t "$IMAGE:$GITHUB_SHA" -t "$IMAGE:$BRANCH_TAG" .
+      - name: Scan Docker Scout (blocca le CVE critiche che hanno un fix)
+        uses: docker/scout-action@v1
+        with:
+          command: cves
+          image: ${{ env.IMAGE }}:${{ github.sha }}
+          only-severities: critical
+          only-fixed: true
+          exit-code: true
+      - name: Push su Docker Hub
+        run: docker push --all-tags "$IMAGE"
+
+  pages:
+    needs: docker
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Genera la pagina (commit, immagine, data)
+        run: |
+          sed -i \
+            -e "s|__IMAGE__|$IMAGE|g" \
+            -e "s|__SHA__|${GITHUB_SHA:0:7}|g" \
+            -e "s|__ACTOR__|$GITHUB_ACTOR|g" \
+            -e "s|__DATE__|$(date -u '+%d/%m/%Y %H:%M UTC')|g" \
+            -e "s|__RUN_URL__|$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID|g" \
+            site/index.html
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v5

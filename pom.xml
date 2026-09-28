@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.7</version>
+		<version>4.0.8</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>it.softwareindustriale</groupId>
@@ -15,6 +15,8 @@
 	<description>API di esempio del corso DevOps per Junior</description>
 	<properties>
 		<java.version>21</java.version>
+		<!-- Fix CVE critiche Tomcat segnalate da Docker Scout (Boot 4.0.8 porta 11.0.24) -->
+		<tomcat.version>11.0.26</tomcat.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -25,7 +27,15 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator-test</artifactId>
